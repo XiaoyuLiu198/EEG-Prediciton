@@ -1,0 +1,53 @@
+---
+title: "605_proposal"
+author: "viola"
+date: "2020/11/19"
+output: html_document
+---
+
+```{r}
+##calculate variance
+rm(list = ls(all = TRUE))
+library(stringr)
+name=list.files("files/")
+row1_2<-read.csv("data_set.csv",header = F,nrows = 2)
+row2<-row1_2[2,]
+summary_var<-data.frame()
+n<-length(name)
+for (i in 1:n){
+  data<-read.csv(paste0("files/",name[i]),header = F,skip = 2)
+  row_age<-read.csv(paste0("files/",name[i]),header = F,nrows = 2)
+  m<-dim(data)[1]
+  age<-str_extract(row_age[1,1], "\\d+")
+  for (j in 1:36){
+    #summary_d[i,'range']<-summary(data[,j])[5]-summary(data[,j])[1]
+    if(dim(data)[2]<j){
+      summary_var[i,j]<-0
+      j=j+1
+    }
+    else{
+     summary_var[i,j]<-var(data[,j]) 
+     j=j+1
+    }
+  }
+  summary_var[i,37]<-age
+}
+colnames(summary_var)<-c(row2,"age")
+```
+
+
+```{r}
+##calculate correlation between signal channels and age
+library(corrplot)
+summary_var[,37]<-as.numeric(summary_var[,37])
+rel<-cor(summary_var[,37],summary_var[,c(1:36)],method="spearman")
+rel_whole<-cor(summary_var[,c(1:37)],method="spearman")
+corrplot(rel_whole,title = "Correlation Plot",method ="circle",tl.cex=0.5)
+sorted<-order(rel)
+remain_col<-c()
+for(i in 1:8){
+  remain_col[i]<-row2[sorted[i]]
+  i=i+1
+}
+```
+
