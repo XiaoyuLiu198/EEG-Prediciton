@@ -15,9 +15,7 @@ activity of a person’s brain using a series of electrodes positioned strategic
 We use 1283 files from the data set because the size of other files is larger than 100MB which is beyond the expected size of CHTC input files. The size of each file we used is between 55MB and
 100MB.
 The first line of each CSV file is the age of the participant. The second line is the names of brainwave signals and tracked data for signals. There are 36 kinds of brainwave signals (some participants have less than 36 signals, but they have at least 24 signals in the CSV files), and each signal is
-followed by over 300,000 observations. In general, each column represents a different EEG channel, which can be divided into two types. The last four signals are PHOTIC-REF, IBI, BURSTS, and
-SUPPR. They represent photic sneeze reflex, interburst interval, burst, and suppression respectively. The other columns can be classified as a type that is linked with a certain zone in the brain (as the
-picture below shows). EEG features change as a function of age and health condition.
+followed by over 300,000 observations.
 
 3. Extracting feature
 
@@ -30,11 +28,26 @@ submission takes about 19 minutes and 31 seconds.
 What we want to do is to catch features in each signal channel, so for each sample, we have
 24-36 “sub-features” to extract, we want to use the channels every sample has, which means we want
 to find the 24 common“sub-features” in every sample, so that data set will not include missing values.
-After this, we have 1283 samples(start with new ), each sample is a 24-36 dimensional vector in the
+After this, we have 1283 samples, each sample is a 24-36 dimensional vector in the
 sample space. Then we do dimensionality reduction that we only retain the coordinates which have
 the valid feature in all samples, in other words, not be implemented by us. The result should be a
 24-dimensional space, which should be our feature space.
-To find the feature of each participant, we read several papers about EEG signals. According to
-Al Zoubi et al., 2018, EEG signals could be transformed into four types of waves.
-Those waves can efficiently represent the activity and features of the brain, which indicates that
-the percentage of certain types of waves consisted of all types of waves might reflects age.
+
+4. Machine Learning
+
+To choose proper features among the features we extracted as mentioned above, we calculated the
+Pearson correlation of Features and drew the scatter plots of the data set. From the Pearson correlation
+between alpha wave and age, we notice that more than 4 signal channels’ correlation coefficients
+between age are larger than 0.1.We also noticed that the wave index from signal channels
+are very likely to be linearly related, which indicates that we need to solve the linearity between
+variables.
+Among those features, we chose the power density of θ wave, the power density of α wave, and
+entropy for further research according to the plots and research from Kanokwan.etl, 2019.
+We applied PCA to eliminate the linearity between explanatory variables(namely the value in
+different signal channels). Then we tried five types of models to predict the age of a participant this
+time. To obtain optimal hyperparameter, we use the grid-search method to calculate the accuracy
+of a different combination of hyperparameters on split sets.The metric we chose is mean
+squared error(denoted as MSE), which can reflect the difference between our prediction and the true
+value.
+
+
